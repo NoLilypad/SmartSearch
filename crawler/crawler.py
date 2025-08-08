@@ -17,7 +17,6 @@ def crawl(seed_url):
     text = soup.get_text(separator=" ", strip=True)
 
     # Extracts all valid links (absolute URLs)
-
     links = []
     for a_tag in soup.find_all("a", href=True):
         href = a_tag["href"]
@@ -36,8 +35,3 @@ def crawl(seed_url):
         "text": text,
         "links": links
     }
-
-
-
-
-print(crawl("https://fr.wikipedia.org")['links'])
