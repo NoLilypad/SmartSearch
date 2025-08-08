@@ -14,27 +14,34 @@ if __name__ == "__main__":
     urls_to_crawl = deque()
 
     # Initial seed
-    urls_to_crawl.append('https://fr.wikipedia.org')
+    urls_to_crawl.append(['https://fr.wikipedia.org'])
 
     
 
     while urls_to_crawl:
-        # Get page
-        next_url = urls_to_crawl.popleft()
-        page = crawl(next_url)
+        print('urls_to_crawl length :',len(urls_to_crawl))
+        # Get URL batch
+        batch = urls_to_crawl.popleft()
 
-        # Insert 
-        urls_to_crawl.extend(page.get('links', []))
+        # Crawl each URL in the batch
+        while batch:
+            print('Batch length :',len(batch))
+            # Get page
+            next_url = batch.pop()
+            page = crawl(next_url)
 
-        # Insert page into DB
-        try:
-            c.execute(
-                "INSERT OR IGNORE INTO pages (url, title, text) VALUES (?, ?, ?)",
-                (next_url, page.get('title', ''), page.get('text', ''))
-            )
-            conn.commit()
-        except Exception as e:
-            print(f"DB error for {next_url}: {e}")
+            # Insert new batch of URL 
+            urls_to_crawl.append(page['links'])
+
+            # Insert page into DB
+            try:
+                c.execute(
+                    "INSERT OR IGNORE INTO pages (url, title, text) VALUES (?, ?, ?)",
+                    (next_url, page.get('title', ''), page.get('text', ''))
+                )
+                conn.commit()
+            except Exception as e:
+                print(f"DB error for {next_url}: {e}")
 
     conn.close()
 
