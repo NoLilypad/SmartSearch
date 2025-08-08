@@ -1,7 +1,10 @@
-from crawler import crawl
 from collections import deque
 import sqlite3
 import os
+import urllib.robotparser
+
+from crawler import crawl
+import utils
 
 # Launches crawling
 if __name__ == "__main__":
@@ -28,7 +31,19 @@ if __name__ == "__main__":
             print('Batch length :',len(batch))
             # Get page
             next_url = batch.pop()
-            page = crawl(next_url)
+
+            # Checks if it can crawl the page
+            root = utils.get_site_root(next_url)
+            rp = urllib.robotparser.RobotFileParser()
+            rp.set_url(f"{root}/robots.txt")
+            rp.read()
+            can_crawl = rp.can_fetch("RubzBot", next_url)
+
+            print(can_crawl)
+
+            # Crawls the page
+            if can_crawl:
+                page = crawl(next_url)
 
             # Insert new batch of URL 
             urls_to_crawl.append(page['links'])
