@@ -3,9 +3,9 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 
 
-def crawl(seed_url):
+def crawl(url):
     # Gets the page
-    page = requests.get(seed_url)
+    page = requests.get(url)
     soup = BeautifulSoup(page.content, "html.parser")
 
     # Extracts page's title
@@ -24,7 +24,7 @@ def crawl(seed_url):
         if href.startswith("#") or href.startswith("javascript:") or href.startswith("mailto:"):
             continue
         # Convert relative URLs to absolute
-        absolute_url = urljoin(seed_url, href)
+        absolute_url = urljoin(url, href)
         # Only keep http(s) links
         parsed = urlparse(absolute_url)
         if parsed.scheme in ["http", "https"]:
